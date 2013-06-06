@@ -33,7 +33,7 @@ function run_in_chroot {
 
   # Disable daemon startup
   disable $chroot/sbin/initctl
-  disable $chroot/usr/sbin/invoke-rc.d
+  #disable $chroot/usr/sbin/invoke-rc.d
 
   unshare -m $SHELL <<EOS
     mkdir -p $chroot/dev
@@ -48,7 +48,7 @@ EOS
 
   # Enable daemon startup
   enable $chroot/sbin/initctl
-  enable $chroot/usr/sbin/invoke-rc.d
+  #enable $chroot/usr/sbin/invoke-rc.d
 }
 
 declare -a on_exit_items

@@ -24,7 +24,7 @@ else
     gem install bosh_agent --no-rdoc --no-ri -r --pre --source ${agent_gem_src_url}
     "
 fi
-
+mkdir -p $chroot/etc/sv mkdir -p $chroot/etc/service
 cp -a $dir/assets/runit/agent $chroot/etc/sv/agent
 
 if [ ${mcf_enabled:-no} == "yes" ]; then
@@ -44,5 +44,9 @@ cp $dir/assets/empty_state.yml $chroot/$bosh_dir/state.yml
 # the bosh agent installs a config that rotates on size
 mv $chroot/etc/cron.daily/logrotate $chroot/etc/cron.hourly/logrotate
 
-# we need to capture ssh events
-cp $dir/assets/rsyslog.d/10-auth_agent_forwarder.conf $chroot/etc/rsyslog.d/10-auth_agent_forwarder.conf
+cp $dir/assets/bosh_agent $chroot/etc/rc.d/init.d
+chmod 755 $chroot/etc/rc.d/init.d/bosh_agent
+
+# link to runlevel 4 & 5 too
+cd $chroot/etc/rc.d/rc3.d
+ln -s ../init.d/bosh_agent S50bosh_agent

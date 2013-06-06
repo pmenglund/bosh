@@ -54,7 +54,7 @@ namespace :stemcell do
 
 
   desc "Build stemcell"
-  task :basic, [:infrastructure, :version]  do |t, args|
+  task :basic, [:platform, :infrastructure, :version]  do |t, args|
     unless changes_in_bosh_agent?
       puts 'No changes detected in bosh_agent or stemcell_builder...skipping stemcell creation.'
       next
@@ -71,7 +71,7 @@ namespace :stemcell do
       Rake::Task['all:finalize_release_directory'].invoke
     end
 
-    build("stemcell-#{args[:infrastructure]}", options)
+    build("#{args[:platform]}-#{args[:infrastructure]}", options)
   end
 
   desc "Build micro bosh stemcell"

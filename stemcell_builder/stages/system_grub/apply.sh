@@ -8,8 +8,10 @@ base_dir=$(readlink -nf $(dirname $0)/../..)
 source $base_dir/lib/prelude_apply.bash
 
 # Install grub
-apt_get install grub
-rsync -a $chroot/usr/lib/grub/x86*/ $chroot/boot/grub/
+#apt_get install grub
+yum -y --installroot=$chroot --releasever=/ install grub
+#rsync -a $chroot/usr/lib/grub/x86*/ $chroot/boot/grub/
+rsync -a $chroot/usr/share/grub/x86*/ $chroot/boot/grub/
 
 # When a kernel is installed, update-grub is run per /etc/kernel-img.conf.
 # It complains when /boot/grub/menu.lst doesn't exist, so create it.

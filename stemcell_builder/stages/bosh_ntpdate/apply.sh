@@ -14,8 +14,9 @@ cp $dir/assets/ntpdate $chroot/$bosh_dir/bin/ntpdate
 chmod 0755 $chroot/$bosh_dir/bin/ntpdate
 echo "0,15,30,45 * * * * ${bosh_app_dir}/bosh/bin/ntpdate" > $chroot/tmp/ntpdate.cron
 
-run_in_bosh_chroot $chroot "
-crontab -u root /tmp/ntpdate.cron
-"
+# TODO fixme!!!
+#run_in_bosh_chroot $chroot "
+#crontab -u root /tmp/ntpdate.cron
+#"
 
 rm $chroot/tmp/ntpdate.cron

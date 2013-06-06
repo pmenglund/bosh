@@ -6,7 +6,7 @@ set -e
 
 base_dir=$(readlink -nf $(dirname $0)/../..)
 source $base_dir/lib/prelude_apply.bash
-
+set -x
 disk_image_name=root.img
 
 # unmap the loop device in case it's already mapped
@@ -34,7 +34,7 @@ EOS
 
 run_in_chroot $mnt "
 cd /tmp/grub
-grub --device-map=device.map --batch <<EOF
+/sbin/grub --device-map=device.map --batch <<EOF
 root (hd0,0)
 setup (hd0)
 EOF
@@ -44,19 +44,34 @@ EOF
 uuid=$(blkid -c /dev/null -sUUID -ovalue /dev/mapper/$dev)
 
 # Recreate vanilla menu.lst
-rm -f $mnt/boot/grub/menu.lst*
-run_in_chroot $mnt "update-grub -y"
+#rm -f $mnt/boot/grub/menu.lst*
+#run_in_chroot $mnt "update-grub -y"
+
+run_in_chroot $mnt "
+ln /boot/vmlinuz-* /boot/vmlinuz
+ln /boot/initramfs-* /boot/initramfs
+"
 
 # Modify root disk parameters to use the root partition's UUID
 sed -i -e "s/^# kopt=root=\([^ ]*\)/# kopt=root=UUID=$uuid/" $mnt/boot/grub/menu.lst
+cat > $mnt/boot/grub/grub.conf << EOF
+default=0
+timeout=1
+title CentOS
+  root (hd0,0)
+  kernel /boot/vmlinuz ro root=/dev/sda1
+  initrd /boot/initramfs
+EOF
 
 # NOTE: Don't change "groot" to use a UUID. The pv-boot grub mechanism on EC2
 # can't use this to figure out which device contains the kernel. It does
 # understand "root (hd0,0)", which is the default.
 
 # Regenerate menu.lst
-run_in_chroot $mnt "update-grub"
-rm -f $mnt/boot/grub/menu.lst~
+#run_in_chroot $mnt "update-grub"
+#rm -f $mnt/boot/grub/menu.lst~
+echo '=== menu.lst ==='
+cat $mnt/boot/grub/menu.lst
 
 # Clean up bootloader stuff
 umount $mnt/tmp/grub/$disk_image_name
